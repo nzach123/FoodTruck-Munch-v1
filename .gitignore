@@ -1,0 +1,35 @@
+# Godot-specific ignores
+.godot/
+*.translation
+
+# PCK/Export ignores
+*.pck
+*.exe
+*.zip
+*.dll
+*.so
+*.dylib
+*.app
+*.dmg
+*.apk
+*.idsig
+*.aab
+
+# Build artifacts
+*.exp
+*.lib
+*.pdb
+*.ilk
+
+# Mono/C# ignores
+.mono/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userosscache
+*.sln.doccache
+
+# Local editor settings
+export_presets.cfg
+.import/

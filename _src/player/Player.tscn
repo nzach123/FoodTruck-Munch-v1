@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://cac3vtf5fbge7"]
+
+[ext_resource type="PackedScene" path="res://_src/player/interaction_raycast.tscn" id="1_ohtil"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8vem4"]
+size = Vector3(0.6, 1.7, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ut3wm"]
+size = Vector3(0.6, 0.7, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bpb0d"]
+size = Vector3(0.1, 0.1, 0.1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bpb0d"]
+
+[node name="Player" type="CharacterBody3D" unique_id=363114017 groups=["Player"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+
+[node name="StandingCollisionShape" type="CollisionShape3D" parent="." unique_id=159170301]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+shape = SubResource("BoxShape3D_8vem4")
+
+[node name="CrouchingCollisionShape" type="CollisionShape3D" parent="." unique_id=188417856]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.45, 0)
+shape = SubResource("BoxShape3D_ut3wm")
+disabled = true
+
+[node name="StaircheckRayCast3D" type="RayCast3D" parent="." unique_id=1366892716]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
+target_position = Vector3(0, -0.5, 0)
+
+[node name="CrouchRayCast" type="RayCast3D" parent="." unique_id=367226374]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, 0)
+target_position = Vector3(0, 1.6, 0)
+collision_mask = 3
+
+[node name="Body" type="Node3D" parent="." unique_id=652991683]
+
+[node name="Neck" type="Node3D" parent="Body" unique_id=1110223819]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
+
+[node name="Head" type="Node3D" parent="Body/Neck" unique_id=1809465093]
+
+[node name="Eyes" type="Node3D" parent="Body/Neck/Head" unique_id=2021533849]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Body/Neck/Head/Eyes" unique_id=588771371]
+reset_on_save = false
+root_node = NodePath("../..")
+
+[node name="Camera" type="Camera3D" parent="Body/Neck/Head/Eyes" unique_id=227176509]
+
+[node name="InteractionRaycast" parent="Body/Neck/Head/Eyes/Camera" unique_id=579374494 instance=ExtResource("1_ohtil")]
+script = null
+
+[node name="CarryablePosition" type="Marker3D" parent="Body/Neck/Head/Eyes/Camera" unique_id=2024412369]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.8)
+
+[node name="ItemDropShapeCast" type="ShapeCast3D" parent="Body/Neck/Head/Eyes/Camera" unique_id=1786333833]
+shape = SubResource("BoxShape3D_bpb0d")
+target_position = Vector3(0, 0, -2)
+collision_mask = 3
+debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
+
+[node name="Wieldables" type="Node3D" parent="Body/Neck/Head" unique_id=426634754]
+unique_name_in_owner = true
+
+[node name="InteractionStateMachine" type="Node" parent="." unique_id=1013760244]
+
+[node name="GUI" type="Control" parent="." unique_id=1233550101]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="GUI" unique_id=1000872164]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_bpb0d")
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="GUI/Panel" unique_id=2105872013]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=676283431]
+
+[connection signal="animation_finished" from="Body/Neck/Head/Eyes/AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
