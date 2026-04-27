@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://b30asqd6ppdn0" path="res://_src/interactables/ToppingStation.tscn" id="6_topping"]
 [ext_resource type="PackedScene" uid="uid://b3p42a2bfnjrv" path="res://_src/interactables/TortillaStation.tscn" id="7_tortilla"]
 [ext_resource type="PackedScene" uid="uid://cawwatuwl0uns" path="res://_src/interactables/TrompoStation.tscn" id="8_trompo"]
+[ext_resource type="Script" uid="uid://bgsfhojt03ib2" path="res://_src/ui/DebugOverlay.gd" id="debug_overlay_gd"]
+[ext_resource type="Script" uid="uid://dac3b4cfov8fh" path="res://_src/player/Player.gd" id="player_gd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8vem4"]
 size = Vector3(0.6, 1.7, 0.6)
@@ -41,6 +43,7 @@ glow_enabled = true
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=363114017 groups=["Player"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+script = ExtResource("player_gd")
 
 [node name="StandingCollisionShape" type="CollisionShape3D" parent="Player" unique_id=159170301]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
@@ -76,6 +79,7 @@ root_node = NodePath("../..")
 [node name="Camera" type="Camera3D" parent="Player/Body/Neck/Head/Eyes" unique_id=227176509]
 
 [node name="InteractionRaycast" parent="Player/Body/Neck/Head/Eyes/Camera" unique_id=579374494 instance=ExtResource("1_r73mr")]
+target_position = Vector3(0, 0, -3)
 script = null
 
 [node name="CarryablePosition" type="Marker3D" parent="Player/Body/Neck/Head/Eyes/Camera" unique_id=2024412369]
@@ -101,6 +105,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="Panel" type="Panel" parent="Player/GUI" unique_id=1000872164]
 layout_mode = 1
@@ -109,6 +114,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_bpb0d")
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="Player/GUI/Panel" unique_id=2105872013]
@@ -118,10 +124,16 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="InteractionStateMachine" type="Node" parent="Player" unique_id=1013760244]
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="Player" unique_id=676283431]
+
+[node name="DebugOverlay" type="CanvasLayer" parent="Player" unique_id=100000001]
+layer = 10
+visible = false
+script = ExtResource("debug_overlay_gd")
 
 [node name="CSGGeo" type="Node" parent="." unique_id=527582006]
 
@@ -176,35 +188,27 @@ size = Vector3(3.5, 0.25, 5.5)
 
 [node name="TortillaStation" parent="Stations" unique_id=610898452 instance=ExtResource("7_tortilla")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1282512, 0.70663154, -0.35482228)
-script = null
 
 [node name="TrompoStation" parent="Stations" unique_id=842803975 instance=ExtResource("8_trompo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2139643, 1.1863663, -2.1265316)
-script = null
 
 [node name="BellStation" parent="Stations" unique_id=2045915056 instance=ExtResource("4_bell")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.273685, 0.75, 1.0216112)
-script = null
 
 [node name="WhiteSauceStation" parent="Stations" unique_id=793002987 instance=ExtResource("5_sauce")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2252098, 0.87863517, 0.37282252)
-script = null
 
 [node name="RedSauceStation" parent="Stations" unique_id=1640157716 instance=ExtResource("5_sauce")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.2407285, 0.87863517, -0.04897183)
-script = null
 
 [node name="CilantroStation" parent="Stations" unique_id=1730194523 instance=ExtResource("6_topping")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.6975157, -1.3776923)
-script = null
 
 [node name="TomatoStation" parent="Stations" unique_id=1739248143 instance=ExtResource("6_topping")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.6975157, -1.9819947)
-script = null
 
 [node name="OnionStation" parent="Stations" unique_id=1532208550 instance=ExtResource("6_topping")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.25, 0.6975157, -0.80721164)
-script = null
 
 [node name="Lighting" type="Node" parent="." unique_id=1784620140]
 
