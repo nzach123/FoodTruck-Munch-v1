@@ -1,16 +1,24 @@
 [gd_scene format=3 uid="uid://c65s112lqbs1c"]
 
 [ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://_src/player/interaction_raycast.tscn" id="1_r73mr"]
+[ext_resource type="Script" path="res://_src/levels/TruckInterior.gd" id="1_truck_gd"]
 [ext_resource type="PackedScene" uid="uid://dfgeqtfj5x7u8" path="res://_src/interactables/BellStation.tscn" id="4_bell"]
 [ext_resource type="PackedScene" uid="uid://c4y56abxgxwf4" path="res://_src/interactables/SauceStation.tscn" id="5_sauce"]
 [ext_resource type="PackedScene" uid="uid://b30asqd6ppdn0" path="res://_src/interactables/ToppingStation.tscn" id="6_topping"]
 [ext_resource type="PackedScene" uid="uid://b3p42a2bfnjrv" path="res://_src/interactables/TortillaStation.tscn" id="7_tortilla"]
 [ext_resource type="PackedScene" uid="uid://cawwatuwl0uns" path="res://_src/interactables/TrompoStation.tscn" id="8_trompo"]
+[ext_resource type="PackedScene" uid="uid://b04amvthr823e" path="res://_src/levels/MidnightMunchHUD.tscn" id="13_1nob1"]
 [ext_resource type="Script" uid="uid://bgsfhojt03ib2" path="res://_src/ui/DebugOverlay.gd" id="debug_overlay_gd"]
 [ext_resource type="Script" uid="uid://i3hwpdkwqnl" path="res://_src/player/InteractionStateMachine.gd" id="ism_gd"]
 [ext_resource type="Script" uid="uid://dac3b4cfov8fh" path="res://_src/player/Player.gd" id="player_gd"]
 [ext_resource type="Script" uid="uid://d0cuh4fo6bapo" path="res://_src/player/states/StateBusy.gd" id="state_busy_gd"]
 [ext_resource type="Script" uid="uid://dpvxhw755yt62" path="res://_src/player/states/StateIdle.gd" id="state_idle_gd"]
+[ext_resource type="Script" uid="uid://b0nsd8otggupd" path="res://_src/player/states/StateHoldingTortilla.gd" id="state_holding_tortilla_gd"]
+[ext_resource type="Script" uid="uid://b8cp6jfgkerkn" path="res://_src/player/states/StateTrompo.gd" id="state_trompo_gd"]
+[ext_resource type="Script" uid="uid://dset02rxvy00y" path="res://_src/player/states/StateHoldingMeat.gd" id="state_holding_meat_gd"]
+[ext_resource type="Script" uid="uid://llhugdpgc2t7" path="res://_src/player/states/StateTiming.gd" id="state_timing_gd"]
+[ext_resource type="Script" uid="uid://tguje1yiu22n" path="res://_src/player/states/StateSauce.gd" id="state_sauce_gd"]
+[ext_resource type="Script" uid="uid://drm8w4toe4t8y" path="res://_src/player/states/StateBellModal.gd" id="state_bell_modal_gd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8vem4"]
 size = Vector3(0.6, 1.7, 0.6)
@@ -43,6 +51,7 @@ tonemap_mode = 2
 glow_enabled = true
 
 [node name="TruckInterior" type="Node3D" unique_id=1616402923]
+script = ExtResource("1_truck_gd")
 
 [node name="Player" type="CharacterBody3D" parent="." unique_id=363114017 groups=["Player"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
@@ -99,9 +108,6 @@ debug_shape_custom_color = Color(1, 0.368977, 0.687569, 1)
 [node name="Wieldables" type="Node3D" parent="Player/Body/Neck/Head" unique_id=426634754]
 unique_name_in_owner = true
 
-[node name="MidnightMunchHUD" type="CanvasLayer" parent="Player" unique_id=963587457]
-layer = 2
-
 [node name="GUI" type="Control" parent="Player" unique_id=1233550101]
 layout_mode = 3
 anchors_preset = 15
@@ -138,6 +144,24 @@ script = ExtResource("state_idle_gd")
 
 [node name="StateBusy" type="Node" parent="Player/InteractionStateMachine" unique_id=100000003]
 script = ExtResource("state_busy_gd")
+
+[node name="StateHoldingTortilla" type="Node" parent="Player/InteractionStateMachine" unique_id=100000004]
+script = ExtResource("state_holding_tortilla_gd")
+
+[node name="StateTrompo" type="Node" parent="Player/InteractionStateMachine" unique_id=100000005]
+script = ExtResource("state_trompo_gd")
+
+[node name="StateHoldingMeat" type="Node" parent="Player/InteractionStateMachine" unique_id=100000006]
+script = ExtResource("state_holding_meat_gd")
+
+[node name="StateTiming" type="Node" parent="Player/InteractionStateMachine" unique_id=100000007]
+script = ExtResource("state_timing_gd")
+
+[node name="StateSauce" type="Node" parent="Player/InteractionStateMachine" unique_id=100000008]
+script = ExtResource("state_sauce_gd")
+
+[node name="StateBellModal" type="Node" parent="Player/InteractionStateMachine" unique_id=100000009]
+script = ExtResource("state_bell_modal_gd")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="Player" unique_id=676283431]
 
@@ -233,5 +257,7 @@ environment = SubResource("Environment_h3637")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Lighting" unique_id=193217365]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
 shadow_enabled = true
+
+[node name="MidnightMunchHud" parent="." unique_id=745197613 instance=ExtResource("13_1nob1")]
 
 [connection signal="animation_finished" from="Player/Body/Neck/Head/Eyes/AnimationPlayer" to="Player" method="_on_animation_player_animation_finished"]

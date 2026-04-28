@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dg0nr367qmqqk" path="res://_src/data/Recipe.gd" id="1_recipe"]
+
+[resource]
+script = ExtResource("1_recipe")
+recipe_name = &"TacoAlPastor"
+required_ingredients = [&"tortilla", &"meat"]
+optional_ingredients = [&"cilantro", &"tomato", &"onion", &"white_sauce", &"red_sauce"]
+base_sale_price = 3.5
+food_cost = 0.75

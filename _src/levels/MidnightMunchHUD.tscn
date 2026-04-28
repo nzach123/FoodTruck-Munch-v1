@@ -1,0 +1,78 @@
+[gd_scene format=3 uid="uid://b04amvthr823e"]
+
+[ext_resource type="Script" uid="uid://cndjq7fhr3n0o" path="res://_src/ui/MidnightMunchHUD.gd" id="1_hud_gd"]
+[ext_resource type="Script" uid="uid://di7bdsgc05m1f" path="res://_src/ui/HUDPill.gd" id="2_pill_gd"]
+
+[node name="MidnightMunchHUD" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_hud_gd")
+balance_label = NodePath("VBoxContainer/BalanceLabel")
+pill_container = NodePath("VBoxContainer/PillContainer")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -72.0
+offset_right = 600.0
+grow_vertical = 0
+theme_override_constants/separation = 4
+
+[node name="BalanceLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "$5.00"
+theme_override_font_sizes/font_size = 24
+
+[node name="PillContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Tortilla" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"tortilla"
+
+[node name="Meat" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"meat"
+
+[node name="Cilantro" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"cilantro"
+
+[node name="Tomato" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"tomato"
+
+[node name="Onion" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"onion"
+
+[node name="WhiteSauce" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"white_sauce"
+
+[node name="RedSauce" type="Panel" parent="VBoxContainer/PillContainer"]
+custom_minimum_size = Vector2(64, 32)
+layout_mode = 2
+modulate = Color(0.5, 0.5, 0.5, 1)
+script = ExtResource("2_pill_gd")
+ingredient_id = &"red_sauce"
