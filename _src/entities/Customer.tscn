@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://b8y8h8y8h8y8h"]
+
+[ext_resource type="Script" path="res://_src/entities/Customer.gd" id="1_customer_gd"]
+[ext_resource type="Script" path="res://_src/entities/PatienceComponent.gd" id="2_patience_gd"]
+[ext_resource type="PackedScene" path="res://_src/entities/PatienceBar.tscn" id="3_patience_bar"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.4
+height = 1.8
+
+[node name="Customer" type="CharacterBody3D" node_paths=PackedStringArray("patience_component", "nav_agent", "patience_bar")]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_customer_gd")
+patience_component = NodePath("PatienceComponent")
+nav_agent = NodePath("NavigationAgent3D")
+patience_bar = NodePath("PatienceBar")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_1")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 0.3
+avoidance_enabled = true
+
+[node name="PatienceComponent" type="Node" parent="."]
+script = ExtResource("2_patience_gd")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="PatienceBar" parent="." instance=ExtResource("3_patience_bar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.1, 0)

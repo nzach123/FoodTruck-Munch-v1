@@ -1,7 +1,9 @@
-[gd_scene format=3 uid="uid://c65s112lqbs1c"]
+[gd_scene load_steps=22 format=3 uid="uid://c65s112lqbs1c"]
 
 [ext_resource type="PackedScene" uid="uid://cbd2ojah4nun6" path="res://_src/player/interaction_raycast.tscn" id="1_r73mr"]
 [ext_resource type="Script" path="res://_src/levels/TruckInterior.gd" id="1_truck_gd"]
+[ext_resource type="Script" path="res://_src/entities/QueueManager.gd" id="qm_gd"]
+[ext_resource type="PackedScene" uid="uid://b8y8h8y8h8y8h" path="res://_src/entities/Customer.tscn" id="customer_scene"]
 [ext_resource type="PackedScene" uid="uid://dfgeqtfj5x7u8" path="res://_src/interactables/BellStation.tscn" id="4_bell"]
 [ext_resource type="PackedScene" uid="uid://c4y56abxgxwf4" path="res://_src/interactables/SauceStation.tscn" id="5_sauce"]
 [ext_resource type="PackedScene" uid="uid://b30asqd6ppdn0" path="res://_src/interactables/ToppingStation.tscn" id="6_topping"]
@@ -49,6 +51,10 @@ background_mode = 2
 sky = SubResource("Sky_pwhxs")
 tonemap_mode = 2
 glow_enabled = true
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_1"]
+vertices = PackedVector3Array(-1.75, 0, -2.75, -1.75, 0, 2.75, 1.75, 0, 2.75, 1.75, 0, -2.75)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
 
 [node name="TruckInterior" type="Node3D" unique_id=1616402923]
 script = ExtResource("1_truck_gd")
@@ -170,51 +176,54 @@ layer = 10
 visible = false
 script = ExtResource("debug_overlay_gd")
 
-[node name="CSGGeo" type="Node" parent="." unique_id=527582006]
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=100000010]
+nav_mesh = SubResource("NavigationMesh_1")
 
-[node name="CSGCounter" type="CSGBox3D" parent="CSGGeo" unique_id=1312338580]
+[node name="CSGGeo" type="Node" parent="NavigationRegion3D" unique_id=527582006]
+
+[node name="CSGCounter" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo" unique_id=1312338580]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.245121, 0.5, 1.7561035)
 use_collision = true
 size = Vector3(1, 0.25, 1.987793)
 material = SubResource("StandardMaterial3D_bkb2q")
 
-[node name="CSGToppingsCounter" type="CSGBox3D" parent="CSGGeo" unique_id=601842508]
+[node name="CSGToppingsCounter" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo" unique_id=601842508]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.245121, 0.5, -0.998559)
 use_collision = true
 size = Vector3(1, 0.25, 3.493042)
 material = SubResource("StandardMaterial3D_bkb2q")
 
-[node name="CSGStove" type="CSGBox3D" parent="CSGGeo" unique_id=1043321156]
+[node name="CSGStove" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo" unique_id=1043321156]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2409387, 0.5, -0.62138975)
 use_collision = true
 size = Vector3(1, 0.25, 4.2557983)
 material = SubResource("StandardMaterial3D_bkb2q")
 
-[node name="CSGBody" type="CSGCombiner3D" parent="CSGGeo" unique_id=1867931183]
+[node name="CSGBody" type="CSGCombiner3D" parent="NavigationRegion3D/CSGGeo" unique_id=1867931183]
 visible = false
 operation = 2
 
-[node name="CSGBox3D" type="CSGBox3D" parent="CSGGeo/CSGBody" unique_id=1013579846]
+[node name="CSGBox3D" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo/CSGBody" unique_id=1013579846]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.017028809, 1.3511682, 0)
 size = Vector3(3.6572266, 3.1774902, 5.6953125)
 
-[node name="CSGBool" type="CSGBox3D" parent="CSGGeo/CSGBody" unique_id=1189718248]
+[node name="CSGBool" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo/CSGBody" unique_id=1189718248]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5556003, 1.3804027, 1.7406378)
 operation = 2
 size = Vector3(1.6049805, 1.5063477, 1.9451752)
 
-[node name="CSGBox3D3" type="CSGBox3D" parent="CSGGeo/CSGBody/CSGBool" unique_id=1820680719]
+[node name="CSGBox3D3" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo/CSGBody/CSGBool" unique_id=1820680719]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5726291, -0.05668509, -1.7406378)
 size = Vector3(3.3693848, 3.0784607, 5.5146484)
 
-[node name="CSGDrinks" type="CSGBox3D" parent="CSGGeo" unique_id=838562958]
+[node name="CSGDrinks" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo" unique_id=838562958]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.246866, 1.2768466, 2.1303267)
 size = Vector3(1, 2.5512695, 1.2473145)
 material = SubResource("StandardMaterial3D_pwhxs")
 
-[node name="Toppings" type="Node" parent="CSGGeo" unique_id=1729458094]
+[node name="Toppings" type="Node" parent="NavigationRegion3D/CSGGeo" unique_id=1729458094]
 
-[node name="CSGFloor" type="CSGBox3D" parent="CSGGeo" unique_id=902432505]
+[node name="CSGFloor" type="CSGBox3D" parent="NavigationRegion3D/CSGGeo" unique_id=902432505]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.125, 0)
 use_collision = true
 size = Vector3(3.5, 0.25, 5.5)
@@ -259,5 +268,29 @@ transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545
 shadow_enabled = true
 
 [node name="MidnightMunchHud" parent="." unique_id=745197613 instance=ExtResource("13_1nob1")]
+
+[node name="QueueSlots" type="Node3D" parent="." unique_id=100000012]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.5, 0, 0)
+
+[node name="Slot1" type="Marker3D" parent="QueueSlots" unique_id=100000013]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1)
+
+[node name="Slot2" type="Marker3D" parent="QueueSlots" unique_id=100000014]
+
+[node name="Slot3" type="Marker3D" parent="QueueSlots" unique_id=100000015]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1)
+
+[node name="QueueManager" type="Node" parent="." unique_id=100000011]
+script = ExtResource("qm_gd")
+customer_scene = ExtResource("customer_scene")
+queue_slots = [NodePath("../QueueSlots/Slot1"), NodePath("../QueueSlots/Slot2"), NodePath("../QueueSlots/Slot3")]
+spawn_point = NodePath("../SpawnPoint")
+despawn_point = NodePath("../DespawnPoint")
+
+[node name="SpawnPoint" type="Marker3D" parent="." unique_id=100000016]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
+
+[node name="DespawnPoint" type="Marker3D" parent="." unique_id=100000017]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
 
 [connection signal="animation_finished" from="Player/Body/Neck/Head/Eyes/AnimationPlayer" to="Player" method="_on_animation_player_animation_finished"]

@@ -10,6 +10,7 @@ func _ready() -> void:
 	prewarm(preload("res://_src/entities/food/TacoBase.tscn"), 3)
 	prewarm(preload("res://_src/entities/MeatFragment.tscn"), 9)
 	prewarm(preload("res://_src/entities/DroppedTopping.tscn"), 6)
+	prewarm(preload("res://_src/entities/Customer.tscn"), 3)
 
 
 func prewarm(scene: PackedScene, count: int) -> void:
