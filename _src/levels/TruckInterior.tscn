@@ -8,6 +8,9 @@
 [ext_resource type="PackedScene" uid="uid://cawwatuwl0uns" path="res://_src/interactables/TrompoStation.tscn" id="8_trompo"]
 [ext_resource type="Script" uid="uid://bgsfhojt03ib2" path="res://_src/ui/DebugOverlay.gd" id="debug_overlay_gd"]
 [ext_resource type="Script" uid="uid://dac3b4cfov8fh" path="res://_src/player/Player.gd" id="player_gd"]
+[ext_resource type="Script" path="res://_src/player/InteractionStateMachine.gd" id="ism_gd"]
+[ext_resource type="Script" path="res://_src/player/states/StateIdle.gd" id="state_idle_gd"]
+[ext_resource type="Script" path="res://_src/player/states/StateBusy.gd" id="state_busy_gd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8vem4"]
 size = Vector3(0.6, 1.7, 0.6)
@@ -80,6 +83,7 @@ root_node = NodePath("../..")
 
 [node name="InteractionRaycast" parent="Player/Body/Neck/Head/Eyes/Camera" unique_id=579374494 instance=ExtResource("1_r73mr")]
 target_position = Vector3(0, 0, -3)
+collide_with_areas = true
 script = null
 
 [node name="CarryablePosition" type="Marker3D" parent="Player/Body/Neck/Head/Eyes/Camera" unique_id=2024412369]
@@ -127,6 +131,13 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="InteractionStateMachine" type="Node" parent="Player" unique_id=1013760244]
+script = ExtResource("ism_gd")
+
+[node name="StateIdle" type="Node" parent="Player/InteractionStateMachine" unique_id=100000002]
+script = ExtResource("state_idle_gd")
+
+[node name="StateBusy" type="Node" parent="Player/InteractionStateMachine" unique_id=100000003]
+script = ExtResource("state_busy_gd")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="Player" unique_id=676283431]
 

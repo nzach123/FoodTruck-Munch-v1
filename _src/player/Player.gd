@@ -14,11 +14,14 @@ extends CharacterBody3D
 @onready var _staircheck: RayCast3D = $StaircheckRayCast3D
 @onready var _crouch_shape: CollisionShape3D = $CrouchingCollisionShape
 @onready var _crouch_ray: RayCast3D = $CrouchRayCast
+@onready var _ism: InteractionStateMachine = $InteractionStateMachine
 
 # Accumulates raw mouse delta between physics ticks. Consumed and reset each tick.
 var _mouse_delta: Vector2 = Vector2.ZERO
-# Cached per-physics-tick; Module B wires InteractableComponent signals here.
-var _last_collider: Node = null
+# Last raw physics collider — used to detect frame-to-frame changes.
+var _last_collider: Object = null
+# Last confirmed InteractableComponent — used to emit unfocused on exit.
+var _last_ic: InteractableComponent = null
 
 
 func _ready() -> void:
@@ -67,12 +70,31 @@ func _apply_movement(delta: float) -> void:
 	move_and_slide()
 
 
-# Cache the focused collider; on change Module B will emit focused/unfocused
-# signals to the collider's InteractableComponent.
 func _update_raycast() -> void:
-	var collider := _raycast.get_collider() as Node
-	if collider != _last_collider:
-		_last_collider = collider
+	var collider := _raycast.get_collider()
+	if collider == _last_collider:
+		return
+	_last_collider = collider
+
+	# Unfocus the previous interactable before resolving the new one.
+	if _last_ic != null:
+		_last_ic.unfocused.emit()
+		_last_ic = null
+
+	# RayCast3D returns the Area3D directly when collide_with_areas = true.
+	# InteractableComponent extends Area3D, so the cast succeeds when aimed at a station.
+	if collider != null:
+		var ic := collider as InteractableComponent
+		if ic == null and collider is Node:
+			# Fallback: the CollisionShape3D child of an Area3D can be the hit object.
+			ic = (collider as Node).get_parent() as InteractableComponent
+		if ic != null:
+			_last_ic = ic
+			ic.focused.emit(ic)
+
+	# ISM reads this property in StateIdle.physics_update().
+	# Player._physics_process() runs before ISM._physics_process() (parent before child).
+	_ism.focused_interactable = _last_ic
 
 
 # Required by the AnimationPlayer → Player connection in TruckInterior.tscn.

@@ -71,7 +71,18 @@ func _refresh() -> void:
 	_lbl_fps.text     = "FPS: %d" % Engine.get_frames_per_second()
 	_lbl_quality.text = "Last Quality: %s" % _last_quality_str
 	_lbl_locked.text  = "Last Locked: %s" % _last_locked_str
+	_refresh_ism_state()
 	_refresh_pool_stats()
+
+
+func _refresh_ism_state() -> void:
+	# DebugOverlay is a child of Player — get_parent() returns the Player node.
+	var player := get_parent() as Player
+	if player == null:
+		return
+	var ism := player.get_node_or_null("InteractionStateMachine") as InteractionStateMachine
+	if ism:
+		_lbl_ism.text = "ISM State: %s" % ism.get_current_state_name()
 
 
 func _refresh_pool_stats() -> void:
