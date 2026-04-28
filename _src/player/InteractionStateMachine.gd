@@ -58,7 +58,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func transition_to(state_name: StringName) -> void:
 	var next: Node = _state_map.get(state_name)
 	if next == null:
-		push_error("InteractionStateMachine.transition_to: '%s' is not a registered state." \
+		printerr("InteractionStateMachine.transition_to: '%s' is not a registered state." \
 				% state_name)
 		return
 	if next == _current_state:

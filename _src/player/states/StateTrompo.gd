@@ -13,7 +13,7 @@ func enter() -> void:
 	_ism.held_item = &"tortilla"
 	_station = _ism.active_station as TrompoStation
 	if _station == null:
-		push_error("StateTrompo.enter: active_station is not a TrompoStation.")
+		printerr("StateTrompo.enter: active_station is not a TrompoStation.")
 
 
 func exit() -> void:

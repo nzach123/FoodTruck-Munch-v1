@@ -13,7 +13,7 @@ func _init_ism(ism: InteractionStateMachine) -> void:
 func enter() -> void:
 	_station = _ism.active_station as ToppingStation
 	if _station == null:
-		push_error("StateTiming.enter: active_station is not a ToppingStation.")
+		printerr("StateTiming.enter: active_station is not a ToppingStation.")
 		_ism.transition_to(&"StateHoldingMeat")
 		return
 	_circle_radius = 1.0

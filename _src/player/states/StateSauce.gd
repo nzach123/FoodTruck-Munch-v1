@@ -14,7 +14,7 @@ func _init_ism(ism: InteractionStateMachine) -> void:
 func enter() -> void:
 	_station = _ism.active_station as SauceStation
 	if _station == null:
-		push_error("StateSauce.enter: active_station is not a SauceStation.")
+		printerr("StateSauce.enter: active_station is not a SauceStation.")
 		_ism.transition_to(&"StateHoldingMeat")
 		return
 	_gauge = 0.0
