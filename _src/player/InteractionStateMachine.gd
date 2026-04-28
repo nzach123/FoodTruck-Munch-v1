@@ -10,6 +10,21 @@ extends Node
 ## Player sets this BEFORE ISM._physics_process() runs — scene-tree child ordering guarantees it.
 var focused_interactable: InteractableComponent = null
 
+## What the player is currently holding. Set by holding states in enter()/exit().
+## Stations read this in prerequisite_check instead of comparing state name strings.
+## Values: &"" (empty), &"tortilla", &"meat"
+var held_item: StringName = &""
+
+## The station node currently driving a mid-interaction state (e.g. StateTrompo).
+## Set by the station before calling transition_to(); cleared in the state's exit().
+var active_station: Node = null
+
+## Set by Player._ready(). The Node3D that held TacoBase nodes are reparented under.
+## Stations read this instead of traversing the scene tree themselves.
+var wieldables_node: Node3D = null
+## Set by Player._ready(). TacoBase snaps to this Marker3D's position on checkout.
+var hand_anchor: Marker3D = null
+
 var _current_state: Node = null
 # StringName → Node lookup; populated in _ready() from state_nodes.
 var _state_map: Dictionary = {}

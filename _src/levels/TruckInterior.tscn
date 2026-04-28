@@ -7,10 +7,10 @@
 [ext_resource type="PackedScene" uid="uid://b3p42a2bfnjrv" path="res://_src/interactables/TortillaStation.tscn" id="7_tortilla"]
 [ext_resource type="PackedScene" uid="uid://cawwatuwl0uns" path="res://_src/interactables/TrompoStation.tscn" id="8_trompo"]
 [ext_resource type="Script" uid="uid://bgsfhojt03ib2" path="res://_src/ui/DebugOverlay.gd" id="debug_overlay_gd"]
+[ext_resource type="Script" uid="uid://i3hwpdkwqnl" path="res://_src/player/InteractionStateMachine.gd" id="ism_gd"]
 [ext_resource type="Script" uid="uid://dac3b4cfov8fh" path="res://_src/player/Player.gd" id="player_gd"]
-[ext_resource type="Script" path="res://_src/player/InteractionStateMachine.gd" id="ism_gd"]
-[ext_resource type="Script" path="res://_src/player/states/StateIdle.gd" id="state_idle_gd"]
-[ext_resource type="Script" path="res://_src/player/states/StateBusy.gd" id="state_busy_gd"]
+[ext_resource type="Script" uid="uid://d0cuh4fo6bapo" path="res://_src/player/states/StateBusy.gd" id="state_busy_gd"]
+[ext_resource type="Script" uid="uid://dpvxhw755yt62" path="res://_src/player/states/StateIdle.gd" id="state_idle_gd"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8vem4"]
 size = Vector3(0.6, 1.7, 0.6)

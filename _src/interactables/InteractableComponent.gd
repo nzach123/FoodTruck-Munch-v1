@@ -19,6 +19,10 @@ enum InteractionType { INSTANT, DISCRETE_COUNTER, TAP_ACCUMULATE, TIMING }
 ## Leave unconfigured (Callable()) for always-unlocked stations (e.g. TortillaStation).
 var prerequisite_check: Callable = Callable()
 
+## Injected by Player._update_raycast() on first raycast hit.
+## Stations read this in prerequisite_check to avoid coupling to ISM state name strings.
+var ism: InteractionStateMachine = null
+
 ## Emitted by Player._update_raycast() when the interaction raycast enters this Area3D.
 ## Argument is self so subscribers don't need a stored reference.
 signal focused(component: InteractableComponent)

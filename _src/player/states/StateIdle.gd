@@ -32,10 +32,9 @@ func physics_update(_delta: float) -> void:
 		EventBus.station_locked_attempt.emit(ic.station_id, ic.lock_reason)
 		return
 
-	# Trigger the station's handler and move out of idle.
-	# The Station script subscribes to InteractableComponent.interacted for its response.
+	# Trigger the station's handler. The station's interacted signal handler
+	# owns the transition — StateIdle does not assume a destination state.
 	ic.interact()
-	_ism.transition_to(&"StateBusy")
 
 
 ## Reserved for emergency/cancel inputs that need event-driven (not polled) response.

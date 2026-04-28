@@ -10,7 +10,9 @@ func _init_ism(ism: InteractionStateMachine) -> void:
 
 
 func enter() -> void:
-	pass
+	# Nothing should transition here — stations own their transitions.
+	# This fires during development if a station forgets to call transition_to().
+	push_warning("StateBusy.enter: unexpected transition — a station failed to call transition_to().")
 
 
 func exit() -> void:

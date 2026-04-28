@@ -30,6 +30,8 @@ func _ready() -> void:
 		_crouch_shape.disabled = true
 		_staircheck.enabled = false
 		_crouch_ray.enabled = false
+	_ism.wieldables_node = get_node_or_null("%Wieldables") as Node3D
+	_ism.hand_anchor = get_node_or_null("%CarryablePosition") as Marker3D
 
 
 func _unhandled_input(event: InputEvent) -> void:

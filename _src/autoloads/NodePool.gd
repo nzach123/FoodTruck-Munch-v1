@@ -6,6 +6,12 @@ var _pools: Dictionary = {}
 var _active: Dictionary = {}
 
 
+func _ready() -> void:
+	prewarm(preload("res://_src/entities/food/TacoBase.tscn"), 3)
+	prewarm(preload("res://_src/entities/MeatFragment.tscn"), 9)
+	prewarm(preload("res://_src/entities/DroppedTopping.tscn"), 6)
+
+
 func prewarm(scene: PackedScene, count: int) -> void:
 	_ensure_pool(scene)
 	for i in count:
@@ -35,6 +41,10 @@ func return_to_pool(node: Node) -> void:
 		push_warning("NodePool.return_to_pool: '%s' was not checked out from this pool." % node.name)
 		return
 	var scene := node.get_meta(&"_pool_scene") as PackedScene
+	# Restore NodePool as parent before reset so reparented nodes (e.g. TacoBase
+	# held under Player's hand Marker3D) don't remain in the wrong scene subtree.
+	if node.get_parent() != self:
+		node.reparent(self)
 	# reset() contract: pooled nodes implement reset() to clear per-use state.
 	# Checked via has_method to keep the pool generic — no base class required.
 	if node.has_method(&"reset"):

@@ -147,61 +147,86 @@ Final phase. Navigation, patience arcs, and pool-based spawn/despawn. The most G
 
 ### Module 4 — Assembly Line (Back Counter)
 
-**TacoBase Resource & Pool**
-- [ ] Create `res://_src/entities/TacoBase.tscn` as a `Node3D` with a `MeshInstance3D` child (placeholder tortilla mesh) and a script `TacoBase.gd`
-- [ ] `TacoBase.gd`: `class_name TacoBase extends Node3D`; track `var ingredients: Array[StringName] = []`, `var sloppy_flags: int = 0`
-- [ ] Add `func add_ingredient(id: StringName) -> void` and `func reset() -> void` (called on pool return)
+**EDITOR PREREQUISITES (must be done before scripting):**
+- [ ] Add `InteractableComponent` (Area3D, collision_layer=2, collision_mask=0) to all 8 station scenes
+- [ ] Delete `BasicInteraction` placeholder Node from all station scenes
+- [ ] Add `PromptComponent` (Node3D) as sibling to each IC; wire `key_hint` + `locked_hint` in Inspector
+- [ ] Wire all IC exports per station (see table in CLAUDE.md)
+- [ ] Attach `InteractionStateMachine.gd` to ISM node in scene; add `StateIdle` + `StateBusy` as children
+
+**TacoBase Pool**
+- [ ] Verify `TacoBase.tscn` exists with `MeshInstance3D` (placeholder tortilla) and `TacoBase.gd`
 - [ ] In `NodePool._ready()`, call `prewarm(TacoBase_scene, 3)` — max 3 concurrent tacos
+- [ ] Wire `GameManager.default_recipe` to `TacoAlPastor.tres` in Inspector
+
+**State: StateHoldingTortilla**
+- [ ] Create `res://_src/player/states/StateHoldingTortilla.gd` as `class_name StateHoldingTortilla extends Node`
+- [ ] `enter()`: `_ism.held_item = &"tortilla"`
+- [ ] `exit()`: `_ism.held_item = &""`
+- [ ] `physics_update` / `handle_input`: no-ops
 
 **Tortilla Station — INSTANT**
 - [ ] Create `res://_src/interactables/TortillaStation.gd` as `class_name TortillaStation extends Node3D`
-- [ ] On `InteractableComponent.focused` received: verify player is NOT already holding a `TacoBase`; set `lock_reason` accordingly
-- [ ] On `interact_e` pressed (dispatched by ISM in `StateIdle`): `NodePool.checkout(TacoBase_scene)`; parent to Player's right-hand `Marker3D`; emit `EventBus.order_step_completed(&"tortilla", 0)`
-- [ ] Transition Player ISM to `StateHoldingTortilla` (new state)
-- [ ] Create `res://_src/player/states/StateHoldingTortilla.gd` — blocks re-grab of Tortilla; unlocks Trompo
+- [ ] `@export var hand_marker: NodePath` — wire to `%CarryablePosition` in Inspector
+- [ ] In `_ready()`: cache `_ic := $InteractableComponent`; cache `_hand := get_node(hand_marker) as Marker3D`; inject `prerequisite_check = func() -> bool: return GameManager.active_taco != null`; connect `_ic.interacted` to `_on_interacted`
+- [ ] `_on_interacted()`: checkout `TacoBase` from pool; `reparent(%Wieldables)`; snap to `%CarryablePosition.global_position`; set `GameManager.active_taco`; emit `EventBus.order_step_completed(&"tortilla", 0, 0.25)`; set `_ic.ism.active_station = null`; call `_ic.ism.transition_to(&"StateHoldingTortilla")`
+
+**State: StateTrompo**
+- [ ] Create `res://_src/player/states/StateTrompo.gd` as `class_name StateTrompo extends Node`
+- [ ] `enter()`: `_ism.held_item = &"tortilla"`; cast `_ism.active_station` to `TrompoStation`
+- [ ] `exit()`: `_ism.active_station = null`
+- [ ] `physics_update(delta)`: if `_ism.focused_interactable == null` → reset station press count → `_ism.transition_to(&"StateHoldingTortilla")`; else poll `Input.is_action_just_pressed(&"interact_e")` → call `active_station._on_press()`
 
 **Trompo (Meat) Station — DISCRETE\_COUNTER**
 - [ ] Create `res://_src/interactables/TrompoStation.gd` as `class_name TrompoStation extends Node3D`
-- [ ] Add `@export var required_presses: int = 3`
-- [ ] Add `@export var animation_player: AnimationPlayer` — wire in Inspector
-- [ ] Track `var _press_count: int = 0` (reset on new order)
-- [ ] Gate: if ISM state is NOT `StateHoldingTortilla`, emit `EventBus.station_locked_attempt(&"trompo", "Grab a tortilla first")` and abort
-- [ ] On first `interact_e` press: play `AnimationPlayer` animation `"meat_spin_1x"`, increment `_press_count`; spawn pooled `MeatFragment` particle at Trompo, animate onto TacoBase
-- [ ] On second press: play `"meat_spin_2x"`, spawn two `MeatFragment` nodes from pool
-- [ ] On third press: play `"meat_spin_3x"`, spawn three `MeatFragment` nodes; call `taco_base.add_ingredient(&"meat")`; emit `EventBus.order_step_completed(&"meat", 0)`; transition ISM to `StateHoldingMeat`
-- [ ] Create `res://_src/entities/MeatFragment.tscn` — pooled `GPUParticles3D` or `MeshInstance3D` node; `reset()` disables emitting and returns to origin
-- [ ] Create `"meat_spin_1x"`, `"meat_spin_2x"`, `"meat_spin_3x"` animations in the Trompo's `AnimationPlayer` — rotate the Trompo mesh on the Y-axis 1×, 2×, 3× respectively
-- [ ] **Verification:** Attempt Trompo without tortilla; confirm Debug Overlay shows `station_locked_attempt` with correct reason. Complete all 3 presses; confirm `order_step_completed` fired 3 times.
+- [ ] `@export var required_presses: int = 3`; `@export var animation_player: AnimationPlayer`
+- [ ] `prerequisite_check`: `func() -> bool: return _ic.ism.held_item != &"tortilla"`
+- [ ] `_on_interacted()`: set `_ic.ism.active_station = self`; call `_ic.ism.transition_to(&"StateTrompo")`
+- [ ] `func _on_press()`: increment `_press_count`; play `"meat_spin_%dx" % _press_count`; spawn pooled `MeatFragment` (×press_count); on third press: `GameManager.active_taco.add_ingredient(&"meat")`; emit `EventBus.order_step_completed(&"meat", 0, 0.75)`; `_ic.ism.transition_to(&"StateHoldingMeat")`
+- [ ] `func reset_count()`: `_press_count = 0` — called by `StateTrompo` on focus loss cancel
+- [ ] Create `res://_src/entities/MeatFragment.tscn` — `MeshInstance3D` + `AnimationPlayer`; `reset()` stops animation, zeros transform
+- [ ] Create `"meat_spin_1x"`, `"meat_spin_2x"`, `"meat_spin_3x"` animations in Trompo's `AnimationPlayer`
+- [ ] **Verification:** Attempt Trompo without tortilla; confirm `station_locked_attempt` in Debug Overlay. Walk away mid-sequence; confirm press count resets. Complete 3 presses; confirm `StateHoldingMeat` active.
 
 ---
 
 ### Module 5 — Dynamic Interaction (Front Counter)
 
+**State: StateHoldingMeat**
+- [ ] Create `res://_src/player/states/StateHoldingMeat.gd` as `class_name StateHoldingMeat extends Node`
+- [ ] `enter()`: `_ism.held_item = &"meat"`
+- [ ] `exit()`: `_ism.held_item = &""`
+- [ ] `physics_update` / `handle_input`: no-ops (stations drive their own transitions)
+
+**State: StateTiming (reusable — all 3 topping stations)**
+- [ ] Create `res://_src/player/states/StateTiming.gd` as `class_name StateTiming extends Node`
+- [ ] `enter()`: cast `_ism.active_station` to `ToppingStation`; `_circle_radius = 1.0`; emit `EventBus.circle_radius_changed(station.station_id, 1.0)`
+- [ ] `exit()`: emit `EventBus.circle_radius_changed(&"", -1.0)` (sentinel — HUD hides circle); `_ism.active_station = null`
+- [ ] `physics_update(delta)`: if `_ism.focused_interactable == null` → `_ism.transition_to(&"StateHoldingMeat")`; else shrink: `_circle_radius -= delta / station.shrink_duration`; clamp to 0; emit `EventBus.circle_radius_changed(station.station_id, _circle_radius)`; poll `Input.is_action_just_pressed(&"interact_lmb")` → call `station._evaluate(_circle_radius)` → `_ism.transition_to(&"StateHoldingMeat")`
+
+**State: StateSauce (reusable — both sauce stations)**
+- [ ] Create `res://_src/player/states/StateSauce.gd` as `class_name StateSauce extends Node`
+- [ ] `enter()`: cast `_ism.active_station` to `SauceStation`; `_gauge = 0.0`; `_idle_timer = 0.0`
+- [ ] `exit()`: emit `EventBus.sauce_gauge_changed(&"", 0.0)` (reset); `_ism.active_station = null`
+- [ ] `physics_update(delta)`: poll `Input.is_action_just_pressed(&"interact_f")` → increment gauge → emit `EventBus.sauce_gauge_changed`; accumulate idle timer; on `idle_timer >= station.idle_commit_time` → call `station._commit(_gauge)` → `_ism.transition_to(&"StateHoldingMeat")`
+
 **Sauce Stations — TAP\_ACCUMULATE**
-- [ ] Create `res://_src/interactables/SauceStation.gd` as `class_name SauceStation extends Node3D`
-- [ ] Add `@export var green_zone_min: float = 0.6`, `@export var green_zone_max: float = 0.85`, `@export var idle_commit_time: float = 0.4`
-- [ ] Add `@export var overfill_particles: GPUParticles3D` — wire in Inspector; disabled by default
-- [ ] Track `var _gauge_value: float = 0.0`, `var _idle_timer: float = 0.0`, `var _committed: bool = false` — all logic in `_physics_process`
-- [ ] Gate: require ISM state `StateHoldingMeat` or `StateHoldingToppings`; otherwise `station_locked_attempt`
-- [ ] Each `interact_f` press: increment `_gauge_value` by `0.15`; reset `_idle_timer = 0.0`
-- [ ] In `_physics_process`: accumulate `_idle_timer += delta`; if `_idle_timer >= idle_commit_time` and `_gauge_value > 0.0`, call `_commit()`
-- [ ] `_commit()`: if `_gauge_value > green_zone_max`, enable `overfill_particles.emitting = true` for 1.0s (via a pooled timer), set quality = 1 (Sloppy); else if `_gauge_value >= green_zone_min`, quality = 0 (Perfect); else quality = 1 (Sloppy)
-- [ ] Emit `EventBus.order_step_completed(station_id, quality)`; call `taco_base.add_ingredient(station_id)` if quality < 2; reset `_gauge_value = 0.0`
-- [ ] Wire gauge display to a `TextureProgressBar` on the `MidnightMunchHUD` via `EventBus` signal — do not direct-reference HUD from Station
+- [ ] Create `res://_src/interactables/SauceStation.gd` as `class_name SauceStation extends Node3D` (reused by WhiteSauce + RedSauce)
+- [ ] `@export var green_zone_min: float = 0.6`, `@export var green_zone_max: float = 0.85`, `@export var idle_commit_time: float = 0.4`
+- [ ] `@export var overfill_particles: GPUParticles3D`
+- [ ] `prerequisite_check` (data-driven): checks `GameManager.active_taco != null` AND all required toppings from `GameManager.active_recipe.required_ingredients` are in `active_taco.ingredients`
+- [ ] `_on_interacted()`: set `_ic.ism.active_station = self`; `_ic.ism.transition_to(&"StateSauce")`
+- [ ] `func _commit(gauge: float)`: evaluate quality; on overfill enable particles for 1.0s (AnimationPlayer, not Tween); emit `EventBus.order_step_completed(station_id, quality, 0.0)` (0.0 food_cost — tip loss only); if perfect: `GameManager.active_taco.add_ingredient(station_id)`
 
 **Topping Stations — TIMING (Shrinking Circle)**
-- [ ] Create `res://_src/interactables/ToppingStation.gd` as `class_name ToppingStation extends Node3D`
-- [ ] Add `@export var shrink_duration: float = 1.8` (30% wider than native — per GDD §2.2)
-- [ ] Add `@export var target_band_min: float = 0.3`, `@export var target_band_max: float = 0.55` (normalized 0–1 radius)
-- [ ] Add `@export var topping_scene: PackedScene` — set per station (Cilantro, Tomato, Onion) in Inspector
-- [ ] Track `var _circle_radius: float = 1.0`, `var _active: bool = false` — logic in `_physics_process`
-- [ ] On RayCast focus: `_active = true`, `_circle_radius = 1.0` — show the shrinking circle UI element via signal
-- [ ] On RayCast exit: `_active = false` — hide circle UI
-- [ ] In `_physics_process` while `_active`: `_circle_radius -= delta / shrink_duration`; clamp to 0; emit a signal with current radius for the HUD to display
-- [ ] On `interact_lmb` press: if `_circle_radius` within `[target_band_min, target_band_max]`, quality = 0 (Perfect); else quality = 1 (Sloppy) AND spawn pooled `RigidBody3D` topping at station floor position with random impulse
-- [ ] If sloppy: call `taco_base.sloppy_flags += 1`; emit `EventBus.order_step_completed(station_id, 1)` with `food_cost` deduction note
-- [ ] Create `res://_src/entities/DroppedTopping.tscn` — pooled `RigidBody3D` with `MeshInstance3D`; `reset()` zeros velocity, disables physics, repositions
-- [ ] **Verification:** Land a Perfect hit; confirm `quality = 0` in Debug Overlay. Miss; confirm `RigidBody3D` spawns on the floor and `quality = 1` is emitted.
+- [ ] Create `res://_src/interactables/ToppingStation.gd` as `class_name ToppingStation extends Node3D` (reused by Cilantro, Tomato, Onion)
+- [ ] `@export var shrink_duration: float = 1.8`, `@export var target_band_min: float = 0.3`, `@export var target_band_max: float = 0.55`
+- [ ] `@export var ingredient_id: StringName`, `@export var ingredient_cost: float = 0.10`
+- [ ] `prerequisite_check`: `GameManager.active_taco != null` AND `active_taco.ingredients.has(&"meat")`
+- [ ] `_on_interacted()`: set `_ic.ism.active_station = self`; `_ic.ism.transition_to(&"StateTiming")`
+- [ ] `func _evaluate(radius: float)`: if within band → quality 0, `active_taco.add_ingredient(ingredient_id)`, emit `order_step_completed(ingredient_id, 0, 0.0)`; else → quality 1, `active_taco.sloppy_flags += 1`, spawn `DroppedTopping` from pool with `apply_central_impulse()`, emit `order_step_completed(ingredient_id, 1, ingredient_cost)`
+- [ ] Create `res://_src/entities/DroppedTopping.tscn` — pooled `RigidBody3D` + `MeshInstance3D`; `reset()`: `freeze = true` → zero position/rotation/linear_velocity/angular_velocity (freeze must precede zeroing in Jolt)
+- [ ] **Verification:** Perfect hit → `quality=0`, ingredient in taco. Miss → `RigidBody3D` on floor, `quality=1`, `food_cost=0.10` in signal. Step away mid-circle → circle hides (sentinel -1.0 emitted), returns to `StateHoldingMeat`.
 
 ---
 
